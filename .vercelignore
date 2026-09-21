@@ -1,0 +1,11 @@
+.tools
+.pnpm-store
+node_modules
+**/node_modules
+**/dist
+.git
+.cache
+apps/web/test-results
+apps/web/playwright-report
+uploads
+**/*.log
