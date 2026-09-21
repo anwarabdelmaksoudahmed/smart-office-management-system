@@ -11,8 +11,7 @@
   "functions": {
     "api/index.js": {
       "memory": 1024,
-      "maxDuration": 60,
-      "includeFiles": "{apps/api/dist/**,apps/api/prisma/**,node_modules/.pnpm/@prisma+client@*/**/,node_modules/.pnpm/@smart-office+shared@*/**/,packages/shared/dist/**}"
+      "maxDuration": 60
     }
   }
 }
