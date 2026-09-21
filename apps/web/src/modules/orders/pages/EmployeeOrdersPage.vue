@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import DataTable from 'primevue/datatable';
@@ -14,6 +15,7 @@ import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { ordersApi } from '@/modules/orders/api/orders.api';
 import { useOrdersSocket } from '@/modules/orders/composables/useOrdersSocket';
+import EmptyState from '@/shared/components/ui/EmptyState.vue';
 import type { Order, OrderStatus } from '@/modules/orders/types/order';
 
 const STATUS_SEVERITY: Record<string, string> = {
@@ -45,7 +47,13 @@ const statusOptions = computed(() =>
   })),
 );
 
-const { data, isLoading, refetch } = useQuery({
+const { connected: socketConnected } = useOrdersSocket({
+  onEvent: () => {
+    void queryClient.invalidateQueries({ queryKey: ['orders'] });
+  },
+});
+
+const { data, isLoading, isFetching, refetch } = useQuery({
   queryKey: computed(() => ['orders', 'mine', statusFilter.value]),
   queryFn: async () => {
     const { data } = await ordersApi.list({
@@ -55,13 +63,13 @@ const { data, isLoading, refetch } = useQuery({
     });
     return data;
   },
+  // Vercel serverless has no reliable Socket.io — poll so status stays fresh
+  refetchInterval: computed(() => (socketConnected.value ? 15_000 : 5_000)),
+  refetchOnWindowFocus: true,
 });
 
-useOrdersSocket({
-  onEvent: () => {
-    void queryClient.invalidateQueries({ queryKey: ['orders'] });
-  },
-});
+const rows = computed(() => data.value?.data ?? []);
+const isEmpty = computed(() => !isLoading.value && rows.value.length === 0);
 
 const cancelMutation = useMutation({
   mutationFn: (id: string) => ordersApi.cancel(id),
@@ -121,6 +129,23 @@ function canCancel(order: Order) {
 function canRate(order: Order) {
   return order.status === 'COMPLETED' && !order.rating;
 }
+
+function formatUpdated(order: Order) {
+  const raw = order.updatedAt || order.createdAt;
+  if (!raw) return '';
+  try {
+    return new Intl.DateTimeFormat(locale.value === 'ar' ? 'ar' : 'en', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(raw));
+  } catch {
+    return String(raw);
+  }
+}
+
+function clearFilter() {
+  statusFilter.value = null;
+}
 </script>
 
 <template>
@@ -131,36 +156,74 @@ function canRate(order: Order) {
         <h1 class="soc-title">{{ t('nav.orders') }}</h1>
         <p class="mt-1 text-sm soc-muted">{{ t('orders.historyBlurb') }}</p>
       </div>
-      <Select
-        v-model="statusFilter"
-        :options="statusOptions"
-        option-label="label"
-        option-value="value"
-        show-clear
-        :placeholder="t('catalog.status')"
-        class="w-48"
-      />
+      <div class="flex flex-wrap items-center gap-2">
+        <Button
+          icon="pi pi-refresh"
+          text
+          rounded
+          :loading="isFetching"
+          v-tooltip.top="t('common.refresh')"
+          @click="refetch()"
+        />
+        <Select
+          v-model="statusFilter"
+          :options="statusOptions"
+          option-label="label"
+          option-value="value"
+          show-clear
+          :placeholder="t('catalog.status')"
+          class="w-48"
+        />
+      </div>
     </div>
 
-    <div class="soc-surface mt-6 overflow-hidden">
-      <DataTable :value="data?.data ?? []" :loading="isLoading" striped-rows>
-        <Column field="number" :header="t('orders.number')" style="width: 9rem" />
-        <Column :header="t('orders.items')">
+    <EmptyState
+      v-if="isEmpty"
+      class="mt-6"
+      :title="statusFilter ? t('orders.emptyOrdersFiltered') : t('orders.emptyOrders')"
+      icon="pi pi-shopping-bag"
+    >
+      <Button
+        v-if="statusFilter"
+        :label="t('orders.clearFilter')"
+        @click="clearFilter"
+      />
+      <RouterLink v-else to="/employee/menu">
+        <Button :label="t('nav.menu')" />
+      </RouterLink>
+    </EmptyState>
+
+    <div v-else class="soc-surface mt-6 overflow-x-auto">
+      <DataTable
+        :value="rows"
+        :loading="isLoading"
+        striped-rows
+        responsive-layout="scroll"
+        class="min-w-[40rem]"
+      >
+        <Column field="number" :header="t('orders.number')" style="min-width: 8rem" />
+        <Column :header="t('catalog.status')" style="min-width: 9rem">
+          <template #body="{ data: row }">
+            <div class="flex flex-col gap-1">
+              <Tag
+                :severity="STATUS_SEVERITY[row.status] ?? 'secondary'"
+                :value="t(`orders.status.${row.status}`)"
+                class="w-fit"
+              />
+              <span class="text-xs soc-muted">
+                {{ t('orders.updated') }}: {{ formatUpdated(row) }}
+              </span>
+            </div>
+          </template>
+        </Column>
+        <Column :header="t('orders.items')" style="min-width: 10rem">
           <template #body="{ data: row }">
             <span class="text-sm">{{ itemSummary(row) }}</span>
           </template>
         </Column>
-        <Column :header="t('catalog.status')" style="width: 9rem">
+        <Column :header="t('catalog.price')" style="min-width: 7rem">
           <template #body="{ data: row }">
-            <Tag
-              :severity="STATUS_SEVERITY[row.status] ?? 'secondary'"
-              :value="t(`orders.status.${row.status}`)"
-            />
-          </template>
-        </Column>
-        <Column :header="t('catalog.price')" style="width: 7rem">
-          <template #body="{ data: row }">
-            <span>{{ row.total.toFixed(2) }}</span>
+            <span>{{ Number(row.total).toFixed(2) }}</span>
             <Tag
               v-if="row.usedFreeDrink"
               :value="t('rewards.freeDrinks')"
@@ -169,7 +232,7 @@ function canRate(order: Order) {
             />
           </template>
         </Column>
-        <Column :header="t('orders.rate')" style="width: 6rem">
+        <Column :header="t('orders.rate')" style="min-width: 6rem">
           <template #body="{ data: row }">
             <Rating
               v-if="row.rating"
@@ -180,7 +243,7 @@ function canRate(order: Order) {
             <span v-else class="text-sm soc-muted">—</span>
           </template>
         </Column>
-        <Column :header="t('common.actions')" style="width: 12rem">
+        <Column :header="t('common.actions')" style="min-width: 10rem">
           <template #body="{ data: row }">
             <div class="flex gap-1">
               <Button

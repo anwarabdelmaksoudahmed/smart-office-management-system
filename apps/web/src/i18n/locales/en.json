@@ -61,7 +61,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "actions": "Actions",
-    "back": "Back"
+    "back": "Back",
+    "refresh": "Refresh"
   },
   "dashboard": {
     "greeting": "Hello, {name}",
@@ -174,7 +175,11 @@
     "placeFailed": "Could not place order",
     "addedToCart": "Added to cart",
     "total": "Total",
-    "historyBlurb": "Track status in realtime and reorder favorites.",
+    "historyBlurb": "Track order status and reorder favorites. Status refreshes automatically.",
+    "emptyOrders": "You have no orders yet.",
+    "emptyOrdersFiltered": "No orders match this status filter.",
+    "clearFilter": "Clear filter",
+    "updated": "Updated",
     "queueBlurb": "Live queue — accept, prepare, and mark ready.",
     "number": "Order #",
     "items": "Items",

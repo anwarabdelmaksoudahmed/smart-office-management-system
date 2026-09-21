@@ -36,6 +36,7 @@ export interface Order {
   rejectReason?: string | null;
   qrCode?: string | null;
   createdAt: string;
+  updatedAt?: string;
   acceptedAt?: string | null;
   preparingAt?: string | null;
   readyAt?: string | null;

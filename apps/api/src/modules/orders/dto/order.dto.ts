@@ -11,7 +11,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { OrderStatus, OrderType } from '@prisma/client';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 
@@ -91,6 +91,7 @@ export class OrdersQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({ description: 'Filter to current user only (employee view)' })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === true || value === 'true' || value === '1')
+  @IsBoolean()
   mine?: boolean;
 }

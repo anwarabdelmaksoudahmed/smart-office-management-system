@@ -12,10 +12,21 @@ export function useOrdersSocket(options?: {
   let socket: Socket | null = null;
 
   onMounted(() => {
+    // Skip socket on hosts that only serve HTTP serverless (no Engine.IO upgrade)
+    if (typeof window !== 'undefined' && !WS_BASE) {
+      const host = window.location.hostname;
+      if (host.endsWith('.vercel.app')) {
+        return;
+      }
+    }
+
     const auth = useAuthStore();
     socket = io(`${WS_BASE}/orders`, {
-      transports: ['websocket', 'polling'],
+      // Prefer polling first — works better behind proxies; websocket may 200-fail on Vercel
+      transports: ['polling', 'websocket'],
       autoConnect: true,
+      reconnectionAttempts: 3,
+      timeout: 8000,
     });
 
     socket.on('connect', () => {
@@ -29,6 +40,10 @@ export function useOrdersSocket(options?: {
     });
 
     socket.on('disconnect', () => {
+      connected.value = false;
+    });
+
+    socket.on('connect_error', () => {
       connected.value = false;
     });
 
