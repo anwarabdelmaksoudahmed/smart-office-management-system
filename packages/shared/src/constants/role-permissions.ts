@@ -84,6 +84,10 @@ export const ROLE_PERMISSION_MAP: Record<SystemRole, PermissionCode[] | '*'> = {
     P.EMPLOYEES_READ,
     P.EMPLOYEES_CREATE,
     P.EMPLOYEES_UPDATE,
+    P.MENU_READ,
+    P.ORDERS_CREATE,
+    P.ORDERS_READ,
+    P.ORDERS_CANCEL,
     P.DASHBOARD_ADMIN,
   ],
   [SystemRole.INVENTORY_MANAGER]: [
@@ -110,11 +114,15 @@ export const ROLE_PERMISSION_MAP: Record<SystemRole, PermissionCode[] | '*'> = {
     P.RECIPES_READ,
     P.RECIPES_UPDATE,
     P.MENU_READ,
+    P.ORDERS_CREATE,
+    P.ORDERS_READ,
+    P.ORDERS_CANCEL,
     P.DASHBOARD_INVENTORY,
     P.REPORTS_READ,
   ],
   [SystemRole.BARISTA]: [
     P.MENU_READ,
+    P.ORDERS_CREATE,
     P.ORDERS_READ,
     P.ORDERS_QUEUE,
     P.ORDERS_ACCEPT,
@@ -123,6 +131,7 @@ export const ROLE_PERMISSION_MAP: Record<SystemRole, PermissionCode[] | '*'> = {
     P.ORDERS_READY,
     P.ORDERS_COLLECT,
     P.ORDERS_COMPLETE,
+    P.ORDERS_CANCEL,
     P.ORDERS_PRINT,
     P.DASHBOARD_BARISTA,
   ],
@@ -139,6 +148,10 @@ export const ROLE_PERMISSION_MAP: Record<SystemRole, PermissionCode[] | '*'> = {
     P.RESERVATIONS_READ,
     P.RESERVATIONS_CANCEL,
     P.RESERVATIONS_MANAGE,
+    P.MENU_READ,
+    P.ORDERS_CREATE,
+    P.ORDERS_READ,
+    P.ORDERS_CANCEL,
     P.DASHBOARD_GAMING,
   ],
   [SystemRole.EMPLOYEE]: [
@@ -151,7 +164,12 @@ export const ROLE_PERMISSION_MAP: Record<SystemRole, PermissionCode[] | '*'> = {
     P.RESERVATIONS_CANCEL,
     P.GAMING_QUEUE,
   ],
-  [SystemRole.GUEST]: [P.MENU_READ, P.ORDERS_CREATE, P.ORDERS_READ],
+  [SystemRole.GUEST]: [
+    P.MENU_READ,
+    P.ORDERS_CREATE,
+    P.ORDERS_READ,
+    P.ORDERS_CANCEL,
+  ],
 };
 
 export const ROLE_META: Record<
