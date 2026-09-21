@@ -154,6 +154,7 @@ model User {
   wasteRecords      WasteRecord[]        @relation("WasteRecordedBy")
   purchaseOrders    PurchaseOrder[]      @relation("PurchaseCreatedBy")
   uploads           Upload[]
+  claimedOrders     Order[]              @relation("OrderClaimedBy")
 
   @@index([status])
   @@index([deletedAt])
@@ -614,10 +615,13 @@ model Order {
   cancelledAt     DateTime?   @map("cancelled_at")
   rejectReason    String?     @map("reject_reason")
   qrCode          String?     @unique @map("qr_code")
+  claimedById     String?     @map("claimed_by_id") @db.Uuid
+  claimedAt       DateTime?   @map("claimed_at")
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
   user                 User                   @relation(fields: [userId], references: [id])
+  claimedBy            User?                  @relation("OrderClaimedBy", fields: [claimedById], references: [id])
   items                OrderItem[]
   statusHistory        OrderStatusHistory[]
   rating               OrderRating?
@@ -627,6 +631,7 @@ model Order {
   @@index([userId, createdAt])
   @@index([scheduledFor])
   @@index([type, status])
+  @@index([claimedById])
   @@map("orders")
 }
 

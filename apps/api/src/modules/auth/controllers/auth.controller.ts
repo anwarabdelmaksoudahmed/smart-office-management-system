@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
 } from '@nestjs/common';
@@ -11,7 +12,13 @@ import { Public } from '../../../common/decorators/public.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../../../common/types/auth.types';
 import { AuthService } from '../services/auth.service';
-import { LoginDto, LogoutDto, RefreshTokenDto } from '../dto/auth.dto';
+import {
+  ChangePasswordDto,
+  LoginDto,
+  LogoutDto,
+  RefreshTokenDto,
+  UpdateProfileDto,
+} from '../dto/auth.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -50,5 +57,25 @@ export class AuthController {
   @ApiOperation({ summary: 'Current authenticated user profile' })
   me(@CurrentUser() user: AuthenticatedUser) {
     return this.authService.me(user.id);
+  }
+
+  @Patch('me')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update own profile (name, phone, avatar, locale)' })
+  updateProfile(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.authService.updateProfile(user.id, dto);
+  }
+
+  @Post('change-password')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change password (requires current password)' })
+  changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(user.id, dto);
   }
 }

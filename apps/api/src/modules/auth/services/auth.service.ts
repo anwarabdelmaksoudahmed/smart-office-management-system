@@ -1,7 +1,8 @@
 import {
+  BadRequestException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -10,9 +11,15 @@ import { createHash, randomBytes } from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { JwtPayload } from '../../../common/types/auth.types';
 import { AuditService } from '../../audit-logs/services/audit.service';
-import { LoginDto } from '../dto/auth.dto';
+import {
+  ChangePasswordDto,
+  LoginDto,
+  UpdateProfileDto,
+} from '../dto/auth.dto';
 
 const BCRYPT_ROUNDS = 12;
+const AVATAR_PATTERN =
+  /^data:image\/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=\s]+$/i;
 
 @Injectable()
 export class AuthService {
@@ -212,6 +219,85 @@ export class AuthService {
       permissions,
       employeeProfile: user.employeeProfile,
     };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    if (dto.avatarUrl !== undefined && dto.avatarUrl !== null) {
+      const trimmed = dto.avatarUrl.trim();
+      if (trimmed && !AVATAR_PATTERN.test(trimmed)) {
+        throw new BadRequestException(
+          'Avatar must be a jpeg/png/webp data URL',
+        );
+      }
+      if (trimmed.length > 700_000) {
+        throw new BadRequestException('Avatar image is too large (max ~500KB)');
+      }
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(dto.firstName !== undefined ? { firstName: dto.firstName.trim() } : {}),
+        ...(dto.lastName !== undefined ? { lastName: dto.lastName.trim() } : {}),
+        ...(dto.phone !== undefined
+          ? { phone: dto.phone?.trim() || null }
+          : {}),
+        ...(dto.locale !== undefined ? { locale: dto.locale } : {}),
+        ...(dto.avatarUrl !== undefined
+          ? { avatarUrl: dto.avatarUrl?.trim() || null }
+          : {}),
+      },
+    });
+
+    await this.audit.log({
+      actorId: userId,
+      action: 'auth.profile_update',
+      resource: 'user',
+      resourceId: userId,
+    });
+
+    return this.me(userId);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, deletedAt: null },
+    });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const valid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!valid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    if (dto.currentPassword === dto.newPassword) {
+      throw new BadRequestException(
+        'New password must be different from the current password',
+      );
+    }
+
+    const passwordHash = await AuthService.hashPassword(dto.newPassword);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    // Revoke other sessions
+    await this.prisma.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+
+    await this.audit.log({
+      actorId: userId,
+      action: 'auth.password_change',
+      resource: 'user',
+      resourceId: userId,
+    });
+
+    return { success: true as const };
   }
 
   private async issueTokens(

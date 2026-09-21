@@ -10,12 +10,14 @@ import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { ordersApi } from '@/modules/orders/api/orders.api';
 import { useOrdersSocket } from '@/modules/orders/composables/useOrdersSocket';
+import { useAuthStore } from '@/modules/auth/stores/auth.store';
 import type { Order, OrderStatus } from '@/modules/orders/types/order';
 
 const COLUMNS: OrderStatus[] = ['PENDING', 'ACCEPTED', 'PREPARING', 'READY'];
 
 const { t, locale } = useI18n();
 const toast = useToast();
+const auth = useAuthStore();
 const queryClient = useQueryClient();
 const search = ref('');
 const rejectVisible = ref(false);
@@ -28,7 +30,7 @@ const { data, isLoading, refetch } = useQuery({
     const { data } = await ordersApi.queue();
     return data;
   },
-  refetchInterval: 15_000,
+  refetchInterval: 5_000,
 });
 
 useOrdersSocket({
@@ -66,7 +68,7 @@ const actionMutation = useMutation({
     reason,
   }: {
     id: string;
-    action: 'accept' | 'reject' | 'prepare' | 'ready' | 'collect' | 'complete';
+    action: 'accept' | 'reject' | 'prepare' | 'ready' | 'collect' | 'complete' | 'claim' | 'release';
     reason?: string;
   }) => {
     switch (action) {
@@ -82,6 +84,10 @@ const actionMutation = useMutation({
         return ordersApi.collect(id);
       case 'complete':
         return ordersApi.complete(id);
+      case 'claim':
+        return ordersApi.claim(id);
+      case 'release':
+        return ordersApi.release(id);
     }
   },
   onSuccess: async () => {
@@ -97,7 +103,35 @@ const actionMutation = useMutation({
   },
 });
 
+function isMine(order: Order) {
+  return Boolean(order.claimedById && order.claimedById === auth.user?.id);
+}
+
+function isLockedByOther(order: Order) {
+  return Boolean(order.claimedById && order.claimedById !== auth.user?.id);
+}
+
+function canClaim(order: Order) {
+  return (
+    !order.claimedById &&
+    (order.status === 'PENDING' ||
+      order.status === 'ACCEPTED' ||
+      order.status === 'PREPARING')
+  );
+}
+
+function claimLabel(order: Order) {
+  if (isMine(order)) return t('orders.claimedByYou');
+  if (order.claimedBy) {
+    return t('orders.claimedBy', {
+      name: `${order.claimedBy.firstName} ${order.claimedBy.lastName}`.trim(),
+    });
+  }
+  return t('orders.unclaimed');
+}
+
 function nextAction(order: Order): { action: 'accept' | 'prepare' | 'ready' | 'collect'; label: string } | null {
+  if (isLockedByOther(order)) return null;
   switch (order.status) {
     case 'PENDING':
       return { action: 'accept', label: t('orders.accept') };
@@ -136,6 +170,26 @@ async function printTicket(id: string) {
   } catch {
     toast.add({ severity: 'error', summary: t('orders.actionFailed'), life: 3000 });
   }
+}
+
+function cardStyle(order: Order) {
+  if (isMine(order)) {
+    return {
+      borderColor: 'var(--soc-brand)',
+      background: 'color-mix(in srgb, var(--soc-brand) 8%, var(--soc-bg))',
+    };
+  }
+  if (isLockedByOther(order)) {
+    return {
+      borderColor: 'var(--soc-border)',
+      background: 'var(--soc-bg)',
+      opacity: '0.72',
+    };
+  }
+  return {
+    borderColor: 'var(--soc-border)',
+    background: 'var(--soc-bg)',
+  };
 }
 </script>
 
@@ -188,8 +242,8 @@ async function printTicket(id: string) {
           <article
             v-for="order in byStatus(status)"
             :key="order.id"
-            class="rounded-xl border p-3"
-            style="border-color: var(--soc-border); background: var(--soc-bg)"
+            class="rounded-xl border p-3 transition-opacity"
+            :style="cardStyle(order)"
           >
             <div class="flex items-start justify-between gap-2">
               <div>
@@ -205,7 +259,30 @@ async function printTicket(id: string) {
             <p class="mt-2 text-sm">{{ itemLabel(order) }}</p>
             <p class="mt-1 text-sm font-medium">{{ order.total.toFixed(2) }}</p>
 
+            <p
+              class="mt-2 text-xs font-medium"
+              :class="isMine(order) ? 'text-[var(--soc-brand)]' : 'soc-muted'"
+            >
+              {{ claimLabel(order) }}
+            </p>
+
             <div class="mt-3 flex flex-wrap gap-1">
+              <Button
+                v-if="canClaim(order)"
+                size="small"
+                outlined
+                :label="t('orders.claim')"
+                icon="pi pi-lock"
+                @click="actionMutation.mutate({ id: order.id, action: 'claim' })"
+              />
+              <Button
+                v-if="isMine(order) && order.status !== 'READY'"
+                size="small"
+                text
+                :label="t('orders.release')"
+                icon="pi pi-unlock"
+                @click="actionMutation.mutate({ id: order.id, action: 'release' })"
+              />
               <Button
                 v-if="nextAction(order)"
                 size="small"
@@ -218,7 +295,7 @@ async function printTicket(id: string) {
                 "
               />
               <Button
-                v-if="order.status === 'PENDING'"
+                v-if="order.status === 'PENDING' && !isLockedByOther(order)"
                 size="small"
                 severity="danger"
                 outlined

@@ -90,6 +90,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/modules/employees/pages/RewardsPage.vue'),
         meta: { titleKey: 'nav.rewards' },
       },
+      {
+        path: 'profile',
+        name: 'employee-profile',
+        component: () => import('@/modules/employees/pages/ProfilePage.vue'),
+        meta: { titleKey: 'nav.profile' },
+      },
     ],
   },
   {

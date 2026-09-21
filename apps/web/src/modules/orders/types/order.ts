@@ -35,6 +35,13 @@ export interface Order {
   usedFreeDrink?: boolean;
   rejectReason?: string | null;
   qrCode?: string | null;
+  claimedById?: string | null;
+  claimedAt?: string | null;
+  claimedBy?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  } | null;
   createdAt: string;
   updatedAt?: string;
   acceptedAt?: string | null;

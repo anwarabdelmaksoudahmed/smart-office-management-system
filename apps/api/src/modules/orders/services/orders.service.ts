@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -32,6 +33,9 @@ const orderInclude = {
   },
   user: {
     select: { id: true, firstName: true, lastName: true, email: true },
+  },
+  claimedBy: {
+    select: { id: true, firstName: true, lastName: true },
   },
   statusHistory: { orderBy: { createdAt: 'asc' as const } },
   rating: true,
@@ -252,38 +256,50 @@ export class OrdersService {
   accept(id: string, actorId: string) {
     return this.transition(id, actorId, OrderStatus.ACCEPTED, {
       acceptedAt: new Date(),
-    });
+      claimedBy: { connect: { id: actorId } },
+      claimedAt: new Date(),
+    }, undefined, false, true);
   }
 
   async reject(id: string, actorId: string, dto: RejectOrderDto) {
     return this.transition(id, actorId, OrderStatus.REJECTED, {
       rejectReason: dto.reason,
       cancelledAt: new Date(),
-    }, dto.reason);
+      claimedBy: { disconnect: true },
+      claimedAt: null,
+    }, dto.reason, false, true);
   }
 
   async prepare(id: string, actorId: string) {
     return this.transition(id, actorId, OrderStatus.PREPARING, {
       preparingAt: new Date(),
-    }, undefined, true);
+      claimedBy: { connect: { id: actorId } },
+      claimedAt: new Date(),
+    }, undefined, true, true);
   }
 
   ready(id: string, actorId: string) {
     return this.transition(id, actorId, OrderStatus.READY, {
       readyAt: new Date(),
-    });
+      claimedBy: { disconnect: true },
+      claimedAt: null,
+    }, undefined, false, true);
   }
 
   collect(id: string, actorId: string) {
     return this.transition(id, actorId, OrderStatus.COLLECTED, {
       collectedAt: new Date(),
-    });
+      claimedBy: { disconnect: true },
+      claimedAt: null,
+    }, undefined, false, true);
   }
 
   complete(id: string, actorId: string) {
     return this.transition(id, actorId, OrderStatus.COMPLETED, {
       completedAt: new Date(),
-    }).then(async (order) => {
+      claimedBy: { disconnect: true },
+      claimedAt: null,
+    }, undefined, false, true).then(async (order) => {
       await this.rewardsService.earnOrderPoints(order.userId, {
         id: order.id,
         number: order.number,
@@ -302,9 +318,84 @@ export class OrdersService {
       throw new ForbiddenException('Cannot cancel this order');
     }
 
-    return this.transition(id, actor.id, OrderStatus.CANCELLED, {
-      cancelledAt: new Date(),
+    return this.transition(
+      id,
+      actor.id,
+      OrderStatus.CANCELLED,
+      {
+        cancelledAt: new Date(),
+        claimedBy: { disconnect: true },
+        claimedAt: null,
+      },
+      undefined,
+      false,
+      isStaff,
+    );
+  }
+
+  async claim(id: string, actorId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: orderInclude,
     });
+    if (!order) throw new NotFoundException('Order not found');
+
+    const claimable: OrderStatus[] = [
+      OrderStatus.PENDING,
+      OrderStatus.ACCEPTED,
+      OrderStatus.PREPARING,
+    ];
+    if (!claimable.includes(order.status)) {
+      throw new BadRequestException('Order cannot be claimed in this status');
+    }
+
+    if (order.claimedById && order.claimedById !== actorId) {
+      throw new ConflictException(
+        `Order already claimed by ${order.claimedBy?.firstName ?? 'another barista'}`,
+      );
+    }
+
+    const updated = await this.prisma.order.update({
+      where: { id },
+      data: {
+        claimedById: actorId,
+        claimedAt: new Date(),
+      },
+      include: orderInclude,
+    });
+
+    const serialized = this.serialize(updated);
+    this.ordersGateway.emitOrderUpdated(serialized);
+    return serialized;
+  }
+
+  async release(id: string, actorId: string, force = false) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: orderInclude,
+    });
+    if (!order) throw new NotFoundException('Order not found');
+
+    if (!order.claimedById) {
+      return this.serialize(order);
+    }
+
+    if (!force && order.claimedById !== actorId) {
+      throw new ForbiddenException('Only the claiming barista can release this order');
+    }
+
+    const updated = await this.prisma.order.update({
+      where: { id },
+      data: {
+        claimedById: null,
+        claimedAt: null,
+      },
+      include: orderInclude,
+    });
+
+    const serialized = this.serialize(updated);
+    this.ordersGateway.emitOrderUpdated(serialized);
+    return serialized;
   }
 
   async rate(id: string, userId: string, dto: RateOrderDto) {
@@ -375,11 +466,13 @@ export class OrdersService {
     extra: Prisma.OrderUpdateInput = {},
     note?: string,
     deductInventory = false,
+    requireClaim = false,
   ) {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: {
         items: { include: { recipeSnapshots: true } },
+        claimedBy: { select: { id: true, firstName: true, lastName: true } },
       },
     });
     if (!order) throw new NotFoundException('Order not found');
@@ -393,6 +486,14 @@ export class OrdersService {
       throw new BadRequestException(
         `Cannot transition from ${order.status} to ${toStatus}`,
       );
+    }
+
+    if (requireClaim) {
+      if (order.claimedById && order.claimedById !== actorId) {
+        throw new ConflictException(
+          `Order claimed by ${order.claimedBy?.firstName ?? 'another barista'}`,
+        );
+      }
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {

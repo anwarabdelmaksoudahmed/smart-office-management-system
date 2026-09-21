@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, RouterLink } from 'vue-router';
 import Button from 'primevue/button';
 import LocaleSwitcher from '@/shared/components/ui/LocaleSwitcher.vue';
 import ThemeToggle from '@/shared/components/ui/ThemeToggle.vue';
@@ -130,13 +130,20 @@ async function onLogout() {
         <div class="flex items-center gap-2">
           <LocaleSwitcher />
           <ThemeToggle />
-          <div
-            class="ms-1 flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold text-white"
+          <RouterLink
+            to="/employee/profile"
+            class="ms-1 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full text-xs font-semibold text-white"
             style="background: var(--soc-brand)"
             :title="auth.displayName"
           >
-            {{ initials }}
-          </div>
+            <img
+              v-if="auth.user?.avatarUrl"
+              :src="auth.user.avatarUrl"
+              alt=""
+              class="h-full w-full object-cover"
+            />
+            <span v-else>{{ initials }}</span>
+          </RouterLink>
         </div>
       </header>
 

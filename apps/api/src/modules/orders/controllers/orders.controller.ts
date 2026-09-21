@@ -74,6 +74,26 @@ export class OrdersController {
     return this.ordersService.accept(id, user.id);
   }
 
+  @Post(':id/claim')
+  @RequirePermissions(PERMISSIONS.ORDERS_QUEUE)
+  @ApiOperation({ summary: 'Claim order for multi-barista queue' })
+  claim(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ordersService.claim(id, user.id);
+  }
+
+  @Post(':id/release')
+  @RequirePermissions(PERMISSIONS.ORDERS_QUEUE)
+  @ApiOperation({ summary: 'Release claimed order back to the shared queue' })
+  release(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ordersService.release(id, user.id);
+  }
+
   @Post(':id/reject')
   @RequirePermissions(PERMISSIONS.ORDERS_REJECT)
   reject(

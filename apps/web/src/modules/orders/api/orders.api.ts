@@ -50,4 +50,10 @@ export const ordersApi = {
   ticket(id: string) {
     return api.get<Order>(`/orders/${id}/ticket`);
   },
+  claim(id: string) {
+    return api.post<Order>(`/orders/${id}/claim`);
+  },
+  release(id: string) {
+    return api.post<Order>(`/orders/${id}/release`);
+  },
 };
