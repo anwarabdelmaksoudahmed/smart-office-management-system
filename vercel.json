@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "pnpm install",
+  "installCommand": "npm_config_production=false pnpm install",
   "buildCommand": "pnpm --filter @smart-office/shared build && pnpm --filter @smart-office/api exec prisma generate --schema=./prisma/schema.prisma && pnpm --filter @smart-office/api build && pnpm --filter @smart-office/web build",
   "outputDirectory": "apps/web/dist",
   "rewrites": [
