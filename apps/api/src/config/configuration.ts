@@ -10,7 +10,8 @@ class EnvironmentVariables {
 
   @IsInt()
   @Min(1)
-  API_PORT!: number;
+  @IsOptional()
+  API_PORT: number = 3000;
 
   @IsString()
   @IsNotEmpty()
@@ -25,8 +26,8 @@ class EnvironmentVariables {
   DATABASE_URL!: string;
 
   @IsString()
-  @IsNotEmpty()
-  REDIS_URL!: string;
+  @IsOptional()
+  REDIS_URL: string = 'memory://';
 
   @IsString()
   @IsNotEmpty()
@@ -82,7 +83,7 @@ export const jwtConfig = registerAs('jwt', () => ({
 }));
 
 export const redisConfig = registerAs('redis', () => ({
-  url: process.env.REDIS_URL ?? 'redis://localhost:6379',
+  url: process.env.REDIS_URL ?? 'memory://',
 }));
 
 export const throttleConfig = registerAs('throttle', () => ({
