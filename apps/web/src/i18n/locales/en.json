@@ -44,7 +44,7 @@
     "password": "Password",
     "login": "Sign in",
     "loggingIn": "Signing in…",
-    "demoHint": "Demo accounts use password Admin@12345",
+    "demoHint": "Demo accounts use password Admin{'@'}12345",
     "invalid": "Invalid email or password",
     "requiredEmail": "Email is required",
     "requiredPassword": "Password is required",
