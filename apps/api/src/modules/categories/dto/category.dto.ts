@@ -8,6 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ToBoolean } from '../../../common/transforms/to-boolean';
 
 export class CreateCategoryDto {
   @ApiProperty({ example: 'hot-drinks' })
@@ -60,13 +61,13 @@ export class CategoriesQueryDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   activeOnly?: boolean;
 
   @ApiPropertyOptional({ description: 'Include nested children' })
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   tree?: boolean;
 }

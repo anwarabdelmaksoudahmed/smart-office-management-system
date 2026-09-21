@@ -64,18 +64,26 @@ function descOf(item: MenuItem) {
   return locale.value === 'ar' ? item.descriptionAr : item.descriptionEn;
 }
 
-function addToCart(item: MenuItem) {
-  cart.add({
-    menuItemId: item.id,
-    nameEn: item.nameEn,
-    nameAr: item.nameAr,
-    price: item.price,
-  });
-  toast.add({
-    severity: 'success',
-    summary: t('orders.addedToCart'),
-    life: 1800,
-  });
+const addingId = ref<string | null>(null);
+
+async function addToCart(item: MenuItem) {
+  addingId.value = item.id;
+  try {
+    await cart.addMenuItem(item.id);
+    toast.add({
+      severity: 'success',
+      summary: t('orders.addedToCart'),
+      life: 1800,
+    });
+  } catch {
+    toast.add({
+      severity: 'error',
+      summary: t('orders.addFailed'),
+      life: 3000,
+    });
+  } finally {
+    addingId.value = null;
+  }
 }
 </script>
 
@@ -144,7 +152,7 @@ function addToCart(item: MenuItem) {
           <div class="mt-auto flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
               <span class="font-display text-lg font-semibold">
-                {{ item.price.toFixed(2) }}
+                {{ Number(item.price).toFixed(2) }}
               </span>
               <Tag
                 v-if="item.isFeatured"
@@ -163,6 +171,8 @@ function addToCart(item: MenuItem) {
               <Button
                 icon="pi pi-plus"
                 rounded
+                :loading="addingId === item.id"
+                :disabled="addingId === item.id"
                 @click="addToCart(item)"
               />
             </div>

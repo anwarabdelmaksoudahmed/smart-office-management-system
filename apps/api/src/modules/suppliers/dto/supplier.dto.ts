@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ToBoolean } from '../../../common/transforms/to-boolean';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 
 export class CreateSupplierDto {
@@ -43,7 +44,7 @@ export class UpdateSupplierDto extends PartialType(CreateSupplierDto) {}
 export class SuppliersQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   activeOnly?: boolean;
 }

@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
+import { ToBoolean } from '../../../common/transforms/to-boolean';
 
 export class CreateMenuItemDto {
   @ApiProperty()
@@ -95,13 +96,13 @@ export class MenuQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   availableOnly?: boolean;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   featuredOnly?: boolean;
 }

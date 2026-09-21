@@ -6,6 +6,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ToBoolean } from '../../../common/transforms/to-boolean';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 
 export class CreateDeviceDto {
@@ -41,7 +42,7 @@ export class DevicesQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   activeOnly?: boolean;
 }

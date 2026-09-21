@@ -30,4 +30,5 @@ export interface NavItem {
   labelKey: string;
   to: string;
   icon: string;
+  badge?: number | string;
 }

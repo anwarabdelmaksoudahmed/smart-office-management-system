@@ -7,6 +7,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ToBoolean } from '../../../common/transforms/to-boolean';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 
 export class CreateRoomDto {
@@ -40,7 +41,7 @@ export class UpdateRoomDto extends PartialType(CreateRoomDto) {}
 export class RoomsQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   activeOnly?: boolean;
 }

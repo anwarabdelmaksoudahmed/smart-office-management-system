@@ -9,6 +9,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ToBoolean } from '../../../common/transforms/to-boolean';
 import { StockMovementType, StockItemType } from '@prisma/client';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 
@@ -68,7 +69,7 @@ export class StockQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({ description: 'Only items at or below reorder level' })
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   lowOnly?: boolean;
 
   @ApiPropertyOptional({ description: 'Only items with expiry within N days' })

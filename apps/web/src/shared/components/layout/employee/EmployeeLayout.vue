@@ -1,16 +1,25 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import AppShell from '@/shared/components/layout/AppShell.vue';
+import { useCartStore } from '@/modules/orders/stores/cart.store';
 import type { NavItem } from '@/shared/types/auth';
 
-const navItems: NavItem[] = [
+const cart = useCartStore();
+
+const navItems = computed<NavItem[]>(() => [
   { labelKey: 'nav.dashboard', to: '/employee/dashboard', icon: 'pi pi-home' },
   { labelKey: 'nav.menu', to: '/employee/menu', icon: 'pi pi-list' },
-  { labelKey: 'orders.cart', to: '/employee/cart', icon: 'pi pi-shopping-cart' },
+  {
+    labelKey: 'orders.cart',
+    to: '/employee/cart',
+    icon: 'pi pi-shopping-cart',
+    badge: cart.count || undefined,
+  },
   { labelKey: 'nav.orders', to: '/employee/orders', icon: 'pi pi-shopping-bag' },
   { labelKey: 'nav.favorites', to: '/employee/favorites', icon: 'pi pi-heart' },
   { labelKey: 'nav.gaming', to: '/employee/gaming', icon: 'pi pi-desktop' },
   { labelKey: 'nav.rewards', to: '/employee/rewards', icon: 'pi pi-gift' },
-];
+]);
 </script>
 
 <template>

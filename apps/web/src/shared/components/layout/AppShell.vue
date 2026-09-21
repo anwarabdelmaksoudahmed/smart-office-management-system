@@ -6,7 +6,9 @@ import Button from 'primevue/button';
 import LocaleSwitcher from '@/shared/components/ui/LocaleSwitcher.vue';
 import ThemeToggle from '@/shared/components/ui/ThemeToggle.vue';
 import PortalSwitcher from '@/shared/components/ui/PortalSwitcher.vue';
+import Toast from 'primevue/toast';
 import { useAuthStore } from '@/modules/auth/stores/auth.store';
+import { useCartStore } from '@/modules/orders/stores/cart.store';
 import type { NavItem } from '@/shared/types/auth';
 
 defineProps<{
@@ -18,6 +20,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
+const cart = useCartStore();
 const mobileOpen = ref(false);
 
 const initials = computed(() => {
@@ -31,6 +34,7 @@ function isActive(to: string): boolean {
 }
 
 async function onLogout() {
+  cart.clear();
   await auth.logout();
   await router.push({ name: 'login' });
 }
@@ -38,6 +42,7 @@ async function onLogout() {
 
 <template>
   <div class="flex min-h-screen">
+    <Toast position="top-center" />
     <!-- Sidebar -->
     <aside
       class="fixed inset-y-0 z-40 flex w-64 flex-col transition-transform duration-200 lg:static lg:translate-x-0"
@@ -76,7 +81,13 @@ async function onLogout() {
           @click="mobileOpen = false"
         >
           <i :class="[item.icon, 'text-base opacity-90']" />
-          <span>{{ t(item.labelKey) }}</span>
+          <span class="flex-1">{{ t(item.labelKey) }}</span>
+          <span
+            v-if="item.badge"
+            class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-400 px-1.5 text-xs font-semibold text-ink-950"
+          >
+            {{ item.badge }}
+          </span>
         </RouterLink>
       </nav>
 

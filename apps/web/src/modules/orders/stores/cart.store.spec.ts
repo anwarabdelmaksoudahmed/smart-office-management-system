@@ -4,6 +4,7 @@ import { useCartStore } from '@/modules/orders/stores/cart.store';
 
 describe('useCartStore', () => {
   beforeEach(() => {
+    localStorage.clear();
     setActivePinia(createPinia());
   });
 
