@@ -13,15 +13,13 @@ export const PORTALS: PortalDefinition[] = [
   {
     id: 'employee',
     path: '/employee',
+    // Café self-service only — ops roles (barista/inventory/gaming) must not share this portal
     roles: [
       SystemRole.EMPLOYEE,
       SystemRole.GUEST,
       SystemRole.ADMIN,
       SystemRole.SUPER_ADMIN,
       SystemRole.HR,
-      SystemRole.BARISTA,
-      SystemRole.INVENTORY_MANAGER,
-      SystemRole.GAMING_SUPERVISOR,
     ],
     icon: 'pi pi-user',
   },

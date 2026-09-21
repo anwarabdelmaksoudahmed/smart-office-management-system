@@ -1,13 +1,23 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma, UserStatus } from '@prisma/client';
+import { SystemRole } from '@smart-office/shared';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { paginate } from '../../../common/dto/pagination.dto';
 import { AuthService } from '../../auth/services/auth.service';
 import { CreateUserDto, UpdateUserDto, UsersQueryDto } from '../dto/user.dto';
+
+/** Café customers vs ops staff — must not share the same account */
+const CUSTOMER_ROLES = new Set<string>([SystemRole.EMPLOYEE, SystemRole.GUEST]);
+const OPS_ROLES = new Set<string>([
+  SystemRole.BARISTA,
+  SystemRole.INVENTORY_MANAGER,
+  SystemRole.GAMING_SUPERVISOR,
+]);
 
 const userSelect = {
   id: true,
@@ -29,6 +39,22 @@ const userSelect = {
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private async assertCompatibleRoles(roleIds: string[]) {
+    if (!roleIds.length) return;
+    const roles = await this.prisma.role.findMany({
+      where: { id: { in: roleIds } },
+      select: { code: true },
+    });
+    const codes = roles.map((r) => r.code);
+    const hasCustomer = codes.some((c) => CUSTOMER_ROLES.has(c));
+    const hasOps = codes.some((c) => OPS_ROLES.has(c));
+    if (hasCustomer && hasOps) {
+      throw new BadRequestException(
+        'Cannot combine employee/guest with barista, inventory, or gaming roles on the same user',
+      );
+    }
+  }
 
   async findAll(query: UsersQueryDto) {
     const where: Prisma.UserWhereInput = {
@@ -74,6 +100,10 @@ export class UsersService {
     });
     if (existing) throw new ConflictException('Email already in use');
 
+    if (dto.roleIds?.length) {
+      await this.assertCompatibleRoles(dto.roleIds);
+    }
+
     const passwordHash = await AuthService.hashPassword(dto.password);
 
     return this.prisma.user.create({
@@ -105,6 +135,10 @@ export class UsersService {
         where: { email: dto.email, deletedAt: null, NOT: { id } },
       });
       if (clash) throw new ConflictException('Email already in use');
+    }
+
+    if (dto.roleIds) {
+      await this.assertCompatibleRoles(dto.roleIds);
     }
 
     const passwordHash = dto.password

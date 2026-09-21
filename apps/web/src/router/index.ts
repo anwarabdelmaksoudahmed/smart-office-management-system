@@ -42,9 +42,6 @@ const routes: RouteRecordRaw[] = [
         SystemRole.ADMIN,
         SystemRole.SUPER_ADMIN,
         SystemRole.HR,
-        SystemRole.BARISTA,
-        SystemRole.INVENTORY_MANAGER,
-        SystemRole.GAMING_SUPERVISOR,
       ],
     },
     children: [
@@ -124,6 +121,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/modules/orders/pages/BaristaQueuePage.vue'),
         meta: { titleKey: 'nav.orders' },
       },
+      {
+        path: 'profile',
+        name: 'barista-profile',
+        component: () => import('@/modules/employees/pages/ProfilePage.vue'),
+        meta: { titleKey: 'nav.profile' },
+      },
     ],
   },
   {
@@ -193,6 +196,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/modules/waste/pages/WastePage.vue'),
         meta: { titleKey: 'nav.waste' },
       },
+      {
+        path: 'profile',
+        name: 'inventory-profile',
+        component: () => import('@/modules/employees/pages/ProfilePage.vue'),
+        meta: { titleKey: 'nav.profile' },
+      },
     ],
   },
   {
@@ -230,6 +239,12 @@ const routes: RouteRecordRaw[] = [
         name: 'gaming-queue',
         component: () => import('@/modules/gaming/pages/QueuePage.vue'),
         meta: { titleKey: 'nav.queue' },
+      },
+      {
+        path: 'profile',
+        name: 'gaming-profile',
+        component: () => import('@/modules/employees/pages/ProfilePage.vue'),
+        meta: { titleKey: 'nav.profile' },
       },
     ],
   },
@@ -294,6 +309,12 @@ const routes: RouteRecordRaw[] = [
         name: 'admin-settings',
         component: () => import('@/modules/admin/pages/SettingsPage.vue'),
         meta: { titleKey: 'nav.settings' },
+      },
+      {
+        path: 'profile',
+        name: 'admin-profile',
+        component: () => import('@/modules/employees/pages/ProfilePage.vue'),
+        meta: { titleKey: 'nav.profile' },
       },
     ],
   },

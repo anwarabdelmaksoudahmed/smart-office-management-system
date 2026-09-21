@@ -29,6 +29,13 @@ const initials = computed(() => {
   return `${u.firstName?.[0] ?? ''}${u.lastName?.[0] ?? ''}`.toUpperCase();
 });
 
+const profilePath = computed(() => {
+  const segment = route.path.split('/').filter(Boolean)[0];
+  const portals = new Set(['employee', 'barista', 'inventory', 'gaming', 'admin']);
+  if (segment && portals.has(segment)) return `/${segment}/profile`;
+  return '/employee/profile';
+});
+
 function isActive(to: string): boolean {
   return route.path === to || route.path.startsWith(`${to}/`);
 }
@@ -131,7 +138,7 @@ async function onLogout() {
           <LocaleSwitcher />
           <ThemeToggle />
           <RouterLink
-            to="/employee/profile"
+            :to="profilePath"
             class="ms-1 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full text-xs font-semibold text-white"
             style="background: var(--soc-brand)"
             :title="auth.displayName"
