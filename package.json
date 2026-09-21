@@ -1,0 +1,28 @@
+{
+  "name": "smart-office-cafe",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Smart Office Café & Gaming Management System — Enterprise Monorepo",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "dev:api": "pnpm --filter @smart-office/api dev",
+    "dev:web": "pnpm --filter @smart-office/web dev",
+    "build": "pnpm --filter @smart-office/shared build && pnpm --filter @smart-office/api build && pnpm --filter @smart-office/web build",
+    "build:shared": "pnpm --filter @smart-office/shared build",
+    "build:web": "pnpm --filter @smart-office/web build",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "test:e2e": "pnpm --filter @smart-office/api test:e2e && pnpm --filter @smart-office/web test:e2e",
+    "db:generate": "pnpm --filter @smart-office/api prisma:generate",
+    "db:migrate": "pnpm --filter @smart-office/api prisma:migrate",
+    "db:seed": "pnpm --filter @smart-office/api prisma:seed",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down"
+  }
+}

@@ -1,0 +1,35 @@
+# Dependencies
+node_modules
+.pnpm-store
+dist
+build
+coverage
+.turbo
+
+# Env
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+*.log
+
+# Prisma
+apps/api/prisma/*.db
+apps/api/src/generated
+
+# Uploads
+uploads
+apps/api/uploads
+
+# Misc
+*.tsbuildinfo
+.cache
+.tools
+.vercel
+apps/web/test-results
+apps/web/playwright-report
