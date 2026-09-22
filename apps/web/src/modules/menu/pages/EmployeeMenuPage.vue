@@ -11,6 +11,7 @@ import { useToast } from 'primevue/usetoast';
 import { menuApi } from '@/modules/menu/api/menu.api';
 import { categoriesApi } from '@/modules/categories/api/categories.api';
 import { useCartStore } from '@/modules/orders/stores/cart.store';
+import { SHOW_PRICES } from '@/shared/config/features';
 import type { MenuItem } from '@/modules/menu/types/catalog';
 
 const { t, locale } = useI18n();
@@ -149,7 +150,7 @@ async function addToCart(item: MenuItem) {
           </p>
           <div class="mt-auto flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-              <span class="font-display text-lg font-semibold">
+              <span v-if="SHOW_PRICES" class="font-display text-lg font-semibold">
                 {{ Number(item.price).toFixed(2) }}
               </span>
               <Tag

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -53,6 +54,13 @@ export class OrdersController {
     return this.ordersService.queue();
   }
 
+  @Delete()
+  @RequirePermissions(PERMISSIONS.ORDERS_DELETE)
+  @ApiOperation({ summary: 'Delete all orders' })
+  removeAll() {
+    return this.ordersService.removeAll();
+  }
+
   @Get(':id')
   @RequirePermissions(PERMISSIONS.ORDERS_READ, PERMISSIONS.ORDERS_QUEUE)
   findOne(
@@ -63,6 +71,13 @@ export class OrdersController {
       id: user.id,
       permissions: user.permissions,
     });
+  }
+
+  @Delete(':id')
+  @RequirePermissions(PERMISSIONS.ORDERS_DELETE)
+  @ApiOperation({ summary: 'Delete a single order' })
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.ordersService.remove(id);
   }
 
   @Post(':id/accept')

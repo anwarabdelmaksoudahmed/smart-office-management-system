@@ -6,6 +6,7 @@ import Button from 'primevue/button';
 import PageHero from '@/shared/components/ui/PageHero.vue';
 import KpiCard from '@/shared/components/ui/KpiCard.vue';
 import SectionCard from '@/shared/components/ui/SectionCard.vue';
+import { SHOW_PRICES } from '@/shared/config/features';
 import { adminApi } from '@/modules/admin/api/admin.api';
 
 const { t, locale } = useI18n();
@@ -51,7 +52,7 @@ function formatWhen(iso: string) {
     <div v-else-if="data" class="soc-stagger mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <KpiCard :label="t('admin.kpiUsers')" :value="data.kpis.activeUsers" />
       <KpiCard :label="t('admin.kpiOrders')" :value="data.kpis.ordersToday" tone="brand" />
-      <KpiCard :label="t('admin.kpiRevenue')">
+      <KpiCard v-if="SHOW_PRICES" :label="t('admin.kpiRevenue')">
         {{ data.kpis.revenueToday.toFixed(2) }}
       </KpiCard>
       <KpiCard :label="t('admin.kpiPending')" :value="data.kpis.pendingOrders" tone="warn" />

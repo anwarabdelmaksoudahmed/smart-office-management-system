@@ -10,6 +10,7 @@ import { useToast } from 'primevue/usetoast';
 import { ordersApi } from '@/modules/orders/api/orders.api';
 import { useOrdersSocket } from '@/modules/orders/composables/useOrdersSocket';
 import { useAuthStore } from '@/modules/auth/stores/auth.store';
+import { SHOW_PRICES } from '@/shared/config/features';
 import type { Order, OrderStatus } from '@/modules/orders/types/order';
 
 const COLUMNS: OrderStatus[] = ['PENDING', 'ACCEPTED', 'PREPARING', 'READY'];
@@ -255,7 +256,7 @@ function cardStyle(order: Order) {
               </span>
             </div>
             <p class="mt-2 text-sm">{{ itemLabel(order) }}</p>
-            <p class="mt-1 text-sm font-medium">{{ order.total.toFixed(2) }}</p>
+            <p v-if="SHOW_PRICES" class="mt-1 text-sm font-medium">{{ order.total.toFixed(2) }}</p>
 
             <p
               class="mt-2 text-xs font-medium"

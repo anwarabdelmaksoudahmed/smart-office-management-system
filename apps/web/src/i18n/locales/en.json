@@ -86,7 +86,11 @@
     "cancel": "Cancel",
     "actions": "Actions",
     "back": "Back",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "delete": "Delete",
+    "view": "View",
+    "confirm": "Confirm",
+    "page": "Page"
   },
   "dashboard": {
     "greeting": "Hello, {name}",
@@ -206,6 +210,14 @@
     "clearFilter": "Clear filter",
     "updated": "Updated",
     "queueBlurb": "Live queue — claim an order, then accept, prepare, and mark ready.",
+    "baristaHistoryBlurb": "All café orders — view details or remove records.",
+    "employee": "Employee",
+    "viewOrder": "Order details",
+    "deleteAll": "Delete all",
+    "deleted": "Order deleted",
+    "deletedAll": "Deleted {count} orders",
+    "confirmDelete": "Delete order {number}?",
+    "confirmDeleteAll": "Delete all orders permanently? This cannot be undone.",
     "number": "Order #",
     "items": "Items",
     "cancel": "Cancel",

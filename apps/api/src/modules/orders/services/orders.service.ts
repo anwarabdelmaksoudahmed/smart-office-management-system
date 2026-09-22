@@ -286,12 +286,15 @@ export class OrdersService {
     }, undefined, false, true);
   }
 
-  collect(id: string, actorId: string) {
-    return this.transition(id, actorId, OrderStatus.COLLECTED, {
+  async collect(id: string, actorId: string) {
+    // Mark collected then auto-complete so the order leaves the live queue
+    // and rewards points are granted in one barista action.
+    await this.transition(id, actorId, OrderStatus.COLLECTED, {
       collectedAt: new Date(),
       claimedBy: { disconnect: true },
       claimedAt: null,
     }, undefined, false, true);
+    return this.complete(id, actorId);
   }
 
   complete(id: string, actorId: string) {
@@ -306,6 +309,53 @@ export class OrdersService {
       });
       return order;
     });
+  }
+
+  async remove(id: string) {
+    const order = await this.prisma.order.findUnique({ where: { id } });
+    if (!order) throw new NotFoundException('Order not found');
+
+    await this.prisma.$transaction([
+      this.prisma.freeDrinkTransaction.updateMany({
+        where: { orderId: id },
+        data: { orderId: null },
+      }),
+      this.prisma.order.delete({ where: { id } }),
+    ]);
+
+    this.ordersGateway.emitOrderUpdated({
+      id: order.id,
+      userId: order.userId,
+      status: 'DELETED',
+    });
+    return { id, deleted: true };
+  }
+
+  async removeAll() {
+    const orders = await this.prisma.order.findMany({
+      select: { id: true, userId: true },
+    });
+    if (!orders.length) return { deleted: 0 };
+
+    const ids = orders.map((o) => o.id);
+
+    await this.prisma.$transaction([
+      this.prisma.freeDrinkTransaction.updateMany({
+        where: { orderId: { in: ids } },
+        data: { orderId: null },
+      }),
+      this.prisma.order.deleteMany({}),
+    ]);
+
+    for (const order of orders) {
+      this.ordersGateway.emitOrderUpdated({
+        id: order.id,
+        userId: order.userId,
+        status: 'DELETED',
+      });
+    }
+
+    return { deleted: ids.length };
   }
 
   async cancel(id: string, actor: { id: string; permissions: string[] }) {

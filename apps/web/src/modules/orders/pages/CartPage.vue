@@ -13,6 +13,7 @@ import { employeesApi } from '@/modules/employees/api/employees.api';
 import PageHeader from '@/shared/components/ui/PageHeader.vue';
 import EmptyState from '@/shared/components/ui/EmptyState.vue';
 import QtyStepper from '@/modules/orders/components/QtyStepper.vue';
+import { SHOW_PRICES } from '@/shared/config/features';
 import type { CartLine } from '@/modules/orders/types/order';
 
 const { t, locale } = useI18n();
@@ -144,7 +145,7 @@ function setLineQty(line: CartLine, quantity: number) {
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
                   <p class="truncate font-medium">{{ lineName(line) }}</p>
-                  <p class="mt-0.5 text-sm soc-muted">
+                  <p v-if="SHOW_PRICES" class="mt-0.5 text-sm soc-muted">
                     {{ line.price.toFixed(2) }}
                     <span class="opacity-70">· {{ t('orders.each') }}</span>
                   </p>
@@ -167,7 +168,10 @@ function setLineQty(line: CartLine, quantity: number) {
                   :increase-label="t('orders.increaseQty')"
                   @update:model-value="setLineQty(line, $event)"
                 />
-                <p class="font-display text-base font-semibold tabular-nums sm:text-lg">
+                <p
+                  v-if="SHOW_PRICES"
+                  class="font-display text-base font-semibold tabular-nums sm:text-lg"
+                >
                   {{ lineTotal(line).toFixed(2) }}
                 </p>
               </div>
@@ -179,7 +183,7 @@ function setLineQty(line: CartLine, quantity: number) {
       <aside
         class="soc-surface h-fit space-y-4 p-5 lg:sticky lg:top-24"
       >
-        <div class="flex items-center justify-between text-sm">
+        <div v-if="SHOW_PRICES" class="flex items-center justify-between text-sm">
           <span class="soc-muted">{{ t('orders.subtotal') }}</span>
           <span class="tabular-nums">{{ cart.subtotal.toFixed(2) }}</span>
         </div>
@@ -193,7 +197,7 @@ function setLineQty(line: CartLine, quantity: number) {
           <label for="use-free" class="text-sm leading-snug">
             {{ t('rewards.useFreeDrink', { count: balance?.freeDrinks ?? 0 }) }}
             <span
-              v-if="useFreeDrink"
+              v-if="SHOW_PRICES && useFreeDrink"
               class="mt-1 block font-medium text-brand-600 dark:text-brand-300"
             >
               −{{ freeDrinkDiscount.toFixed(2) }}
@@ -202,6 +206,7 @@ function setLineQty(line: CartLine, quantity: number) {
         </div>
 
         <div
+          v-if="SHOW_PRICES"
           class="flex items-center justify-between border-t pt-4 font-display text-lg font-semibold"
           style="border-color: var(--soc-border)"
         >

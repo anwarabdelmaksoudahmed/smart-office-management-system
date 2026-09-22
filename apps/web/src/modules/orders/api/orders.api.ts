@@ -56,4 +56,10 @@ export const ordersApi = {
   release(id: string) {
     return api.post<Order>(`/orders/${id}/release`);
   },
+  remove(id: string) {
+    return api.delete<{ id: string; deleted: boolean }>(`/orders/${id}`);
+  },
+  removeAll() {
+    return api.delete<{ deleted: number }>('/orders');
+  },
 };

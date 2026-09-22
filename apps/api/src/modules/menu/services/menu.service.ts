@@ -146,7 +146,7 @@ export class MenuService {
         nameAr: dto.nameAr,
         descriptionEn: dto.descriptionEn,
         descriptionAr: dto.descriptionAr,
-        price: dto.price,
+        price: dto.price ?? 0,
         imageUrl: dto.imageUrl,
         prepTimeMin: dto.prepTimeMin ?? 5,
         calories: dto.calories,

@@ -43,11 +43,12 @@ export class CreateMenuItemDto {
   @IsString()
   descriptionAr?: string;
 
-  @ApiProperty({ example: 12.5 })
+  @ApiPropertyOptional({ example: 12.5, default: 0 })
+  @IsOptional()
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  price!: number;
+  price?: number;
 
   @ApiPropertyOptional()
   @IsOptional()

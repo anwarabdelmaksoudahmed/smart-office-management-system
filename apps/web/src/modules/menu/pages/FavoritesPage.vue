@@ -6,6 +6,7 @@ import Button from 'primevue/button';
 import { useToast } from 'primevue/usetoast';
 import { menuApi } from '@/modules/menu/api/menu.api';
 import { useCartStore } from '@/modules/orders/stores/cart.store';
+import { SHOW_PRICES } from '@/shared/config/features';
 import type { MenuItem } from '@/modules/menu/types/catalog';
 
 const { t, locale } = useI18n();
@@ -62,7 +63,9 @@ async function addToCart(item: MenuItem) {
       >
         <div>
           <p class="font-medium">{{ nameOf(item) }}</p>
-          <p class="text-sm soc-muted">{{ Number(item.price).toFixed(2) }} · {{ item.sku }}</p>
+          <p class="text-sm soc-muted">
+            <template v-if="SHOW_PRICES">{{ Number(item.price).toFixed(2) }} · </template>{{ item.sku }}
+          </p>
         </div>
         <div class="flex gap-1">
           <Button

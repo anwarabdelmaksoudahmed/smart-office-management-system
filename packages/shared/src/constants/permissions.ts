@@ -41,6 +41,7 @@ export const PERMISSIONS = {
   ORDERS_COMPLETE: 'orders.complete',
   ORDERS_CANCEL: 'orders.cancel',
   ORDERS_PRINT: 'orders.print',
+  ORDERS_DELETE: 'orders.delete',
 
   INGREDIENTS_READ: 'ingredients.read',
   INGREDIENTS_CREATE: 'ingredients.create',

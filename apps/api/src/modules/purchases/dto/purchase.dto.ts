@@ -29,11 +29,12 @@ export class PurchaseLineDto {
   @IsEnum(UnitOfMeasure)
   unit!: UnitOfMeasure;
 
-  @ApiProperty({ example: 0.05 })
+  @ApiPropertyOptional({ example: 0.05, default: 0 })
+  @IsOptional()
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 4 })
   @Min(0)
-  unitCost!: number;
+  unitCost?: number;
 }
 
 export class CreatePurchaseDto {

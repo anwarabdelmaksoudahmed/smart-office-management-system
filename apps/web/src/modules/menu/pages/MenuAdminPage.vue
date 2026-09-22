@@ -14,6 +14,7 @@ import Tag from 'primevue/tag';
 import { useToast } from 'primevue/usetoast';
 import { menuApi } from '@/modules/menu/api/menu.api';
 import { categoriesApi } from '@/modules/categories/api/categories.api';
+import { SHOW_PRICES } from '@/shared/config/features';
 import type { MenuItem } from '@/modules/menu/types/catalog';
 
 const { t, locale } = useI18n();
@@ -197,7 +198,7 @@ function catName(row: MenuItem) {
         <Column :header="t('nav.categories')">
           <template #body="{ data: row }">{{ catName(row) }}</template>
         </Column>
-        <Column :header="t('catalog.price')" style="width: 7rem">
+        <Column v-if="SHOW_PRICES" :header="t('catalog.price')" style="width: 7rem">
           <template #body="{ data: row }">{{ row.price.toFixed(2) }}</template>
         </Column>
         <Column :header="t('catalog.recipe')" style="width: 7rem">
@@ -294,7 +295,7 @@ function catName(row: MenuItem) {
           <label class="text-sm font-medium">Description (EN)</label>
           <InputText v-model="form.descriptionEn" class="w-full" />
         </div>
-        <div class="flex flex-col gap-1.5">
+        <div v-if="SHOW_PRICES" class="flex flex-col gap-1.5">
           <label class="text-sm font-medium">{{ t('catalog.price') }}</label>
           <InputNumber v-model="form.price" mode="decimal" :min-fraction-digits="2" :min="0" class="w-full" />
         </div>

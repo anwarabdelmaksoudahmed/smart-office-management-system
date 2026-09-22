@@ -118,7 +118,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'orders',
         name: 'barista-orders',
-        component: () => import('@/modules/orders/pages/BaristaQueuePage.vue'),
+        component: () => import('@/modules/orders/pages/BaristaOrdersPage.vue'),
         meta: { titleKey: 'nav.orders' },
       },
       {

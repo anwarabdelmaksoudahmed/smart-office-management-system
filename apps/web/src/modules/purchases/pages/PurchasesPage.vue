@@ -17,6 +17,7 @@ import {
   type PurchaseOrder,
 } from '@/modules/purchases/api/procurement.api';
 import { ingredientsApi } from '@/modules/recipes/api/recipes.api';
+import { SHOW_PRICES } from '@/shared/config/features';
 
 const STATUS_SEVERITY: Record<string, string> = {
   DRAFT: 'secondary',
@@ -85,7 +86,7 @@ const createMutation = useMutation({
           ingredientId: l.ingredientId,
           quantity: l.quantity,
           unit: l.unit,
-          unitCost: l.unitCost,
+          unitCost: SHOW_PRICES ? l.unitCost : 0,
         })),
     });
   },
@@ -255,7 +256,8 @@ function canReceive(row: PurchaseOrder) {
           <div
             v-for="(line, idx) in form.lines"
             :key="idx"
-            class="mb-2 grid grid-cols-[1fr_6rem_5rem_6rem] gap-2"
+            class="mb-2 grid gap-2"
+            :class="SHOW_PRICES ? 'grid-cols-[1fr_6rem_5rem_6rem]' : 'grid-cols-[1fr_6rem_5rem]'"
           >
             <Select
               v-model="line.ingredientId"
@@ -272,7 +274,12 @@ function canReceive(row: PurchaseOrder) {
             />
             <InputNumber v-model="line.quantity" :min="0" />
             <InputText v-model="line.unit" />
-            <InputNumber v-model="line.unitCost" :min="0" :min-fraction-digits="2" />
+            <InputNumber
+              v-if="SHOW_PRICES"
+              v-model="line.unitCost"
+              :min="0"
+              :min-fraction-digits="2"
+            />
           </div>
         </div>
       </div>

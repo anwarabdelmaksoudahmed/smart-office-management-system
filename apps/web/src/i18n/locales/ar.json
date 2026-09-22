@@ -86,7 +86,11 @@
     "cancel": "إلغاء",
     "actions": "إجراءات",
     "back": "رجوع",
-    "refresh": "تحديث"
+    "refresh": "تحديث",
+    "delete": "حذف",
+    "view": "عرض",
+    "confirm": "تأكيد",
+    "page": "صفحة"
   },
   "dashboard": {
     "greeting": "مرحباً، {name}",
@@ -206,6 +210,14 @@
     "clearFilter": "مسح الفلتر",
     "updated": "آخر تحديث",
     "queueBlurb": "الطابور الحي — استلم طلباً ثم اقبل وحضّر وجهّز.",
+    "baristaHistoryBlurb": "كل طلبات المقهى — عرض التفاصيل أو حذف السجلات.",
+    "employee": "الموظف",
+    "viewOrder": "تفاصيل الطلب",
+    "deleteAll": "حذف الكل",
+    "deleted": "تم حذف الطلب",
+    "deletedAll": "تم حذف {count} طلبات",
+    "confirmDelete": "حذف الطلب {number}؟",
+    "confirmDeleteAll": "حذف كل الطلبات نهائياً؟ لا يمكن التراجع.",
     "number": "رقم الطلب",
     "items": "الأصناف",
     "cancel": "إلغاء",

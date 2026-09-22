@@ -125,7 +125,7 @@ export class PurchasesService {
             ingredientId: l.ingredientId,
             quantity: l.quantity,
             unit: l.unit,
-            unitCost: l.unitCost,
+            unitCost: l.unitCost ?? 0,
           })),
         },
       },

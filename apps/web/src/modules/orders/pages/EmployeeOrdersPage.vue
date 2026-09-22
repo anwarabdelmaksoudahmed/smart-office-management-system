@@ -15,6 +15,7 @@ import { useToast } from 'primevue/usetoast';
 import { ordersApi } from '@/modules/orders/api/orders.api';
 import { useOrdersSocket } from '@/modules/orders/composables/useOrdersSocket';
 import EmptyState from '@/shared/components/ui/EmptyState.vue';
+import { SHOW_PRICES } from '@/shared/config/features';
 import type { Order, OrderStatus } from '@/modules/orders/types/order';
 
 const STATUS_SEVERITY: Record<string, string> = {
@@ -219,7 +220,7 @@ function clearFilter() {
             <span class="text-sm">{{ itemSummary(row) }}</span>
           </template>
         </Column>
-        <Column :header="t('catalog.price')" style="min-width: 7rem">
+        <Column v-if="SHOW_PRICES" :header="t('catalog.price')" style="min-width: 7rem">
           <template #body="{ data: row }">
             <span>{{ Number(row.total).toFixed(2) }}</span>
             <Tag
@@ -228,6 +229,16 @@ function clearFilter() {
               severity="success"
               class="ml-1"
             />
+          </template>
+        </Column>
+        <Column v-else :header="t('rewards.freeDrinks')" style="min-width: 7rem">
+          <template #body="{ data: row }">
+            <Tag
+              v-if="row.usedFreeDrink"
+              :value="t('rewards.freeDrinks')"
+              severity="success"
+            />
+            <span v-else class="text-sm soc-muted">—</span>
           </template>
         </Column>
         <Column :header="t('orders.rate')" style="min-width: 6rem">

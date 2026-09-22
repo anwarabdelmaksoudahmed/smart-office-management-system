@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/vue-query';
 import Select from 'primevue/select';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import { SHOW_PRICES } from '@/shared/config/features';
 import { adminApi } from '@/modules/admin/api/admin.api';
 
 const { t, locale } = useI18n();
@@ -118,7 +119,7 @@ const movements = computed(() => {
         <DataTable :value="byDay" striped-rows>
           <Column field="date" :header="t('gaming.when')" />
           <Column field="count" :header="t('admin.count')" />
-          <Column field="revenue" :header="t('admin.kpiRevenue')">
+          <Column v-if="SHOW_PRICES" field="revenue" :header="t('admin.kpiRevenue')">
             <template #body="{ data: row }">{{ Number(row.revenue).toFixed(2) }}</template>
           </Column>
         </DataTable>
@@ -135,7 +136,7 @@ const movements = computed(() => {
             </template>
           </Column>
           <Column field="qty" :header="t('inventory.qty')" />
-          <Column field="revenue" :header="t('admin.kpiRevenue')">
+          <Column v-if="SHOW_PRICES" field="revenue" :header="t('admin.kpiRevenue')">
             <template #body="{ data: row }">{{ row.revenue.toFixed(2) }}</template>
           </Column>
         </DataTable>
