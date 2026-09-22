@@ -11,7 +11,6 @@ import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
 import Checkbox from 'primevue/checkbox';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import {
   roomsApi,
@@ -139,7 +138,6 @@ function devicesOf(room: GamingRoom): GamingDevice[] {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.rooms') }}</h1>

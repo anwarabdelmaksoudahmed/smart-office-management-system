@@ -11,7 +11,6 @@ import Select from 'primevue/select';
 import Dialog from 'primevue/dialog';
 import Rating from 'primevue/rating';
 import Textarea from 'primevue/textarea';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { ordersApi } from '@/modules/orders/api/orders.api';
 import { useOrdersSocket } from '@/modules/orders/composables/useOrdersSocket';
@@ -150,7 +149,6 @@ function clearFilter() {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.orders') }}</h1>

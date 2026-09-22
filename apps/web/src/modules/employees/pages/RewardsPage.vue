@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { employeesApi } from '@/modules/employees/api/employees.api';
 import PageHeader from '@/shared/components/ui/PageHeader.vue';
@@ -50,7 +49,6 @@ function formatWhen(iso: string) {
 
 <template>
   <div class="soc-page soc-page-enter">
-    <Toast />
     <PageHeader :title="t('nav.rewards')" :blurb="t('rewards.blurb')" />
 
     <div v-if="isLoading" class="mt-8 text-sm soc-muted">{{ t('common.loading') }}</div>

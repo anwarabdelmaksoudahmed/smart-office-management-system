@@ -9,7 +9,6 @@ import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { wasteApi } from '@/modules/purchases/api/procurement.api';
 import { ingredientsApi } from '@/modules/recipes/api/recipes.api';
@@ -80,7 +79,6 @@ function nameOf(row: WasteRecord) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.waste') }}</h1>

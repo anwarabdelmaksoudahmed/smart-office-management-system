@@ -49,7 +49,12 @@ async function onLogout() {
 
 <template>
   <div class="flex min-h-screen">
-    <Toast position="top-center" />
+    <Toast
+      position="top-center"
+      :breakpoints="{
+        '640px': { width: 'min(100% - 1.5rem, 24rem)', left: '50%', right: 'auto', transform: 'translateX(-50%)' },
+      }"
+    />
     <!-- Sidebar -->
     <aside
       class="fixed inset-y-0 z-40 flex w-64 flex-col transition-transform duration-200 lg:static lg:translate-x-0"

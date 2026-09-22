@@ -11,7 +11,6 @@ import Password from 'primevue/password';
 import MultiSelect from 'primevue/multiselect';
 import Select from 'primevue/select';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { adminApi, type AdminUser } from '@/modules/admin/api/admin.api';
 
@@ -128,7 +127,6 @@ function openEdit(row: AdminUser) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.users') }}</h1>

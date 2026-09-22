@@ -10,7 +10,6 @@ import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import Checkbox from 'primevue/checkbox';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { categoriesApi } from '@/modules/categories/api/categories.api';
 import type { Category } from '@/modules/menu/types/catalog';
@@ -119,7 +118,6 @@ watch(search, () => {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.categories') }}</h1>

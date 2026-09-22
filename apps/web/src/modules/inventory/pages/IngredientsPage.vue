@@ -10,7 +10,6 @@ import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
 import Checkbox from 'primevue/checkbox';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { ingredientsAdminApi } from '@/modules/inventory/api/inventory.api';
 import type { IngredientRow } from '@/modules/inventory/types/inventory';
@@ -111,7 +110,6 @@ function nameOf(row: IngredientRow) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.ingredients') }}</h1>

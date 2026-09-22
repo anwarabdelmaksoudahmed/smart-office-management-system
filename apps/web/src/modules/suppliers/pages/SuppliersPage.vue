@@ -8,7 +8,6 @@ import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { suppliersApi, type Supplier } from '@/modules/purchases/api/procurement.api';
 import PageHeader from '@/shared/components/ui/PageHeader.vue';
@@ -104,7 +103,6 @@ function openEdit(row: Supplier) {
 
 <template>
   <div class="soc-page soc-page-enter">
-    <Toast />
     <PageHeader :title="t('nav.suppliers')" :blurb="t('procurement.suppliersBlurb')">
       <template #actions>
         <Button :label="t('procurement.addSupplier')" icon="pi pi-plus" @click="openCreate" />

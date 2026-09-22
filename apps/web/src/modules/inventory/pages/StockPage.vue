@@ -10,7 +10,6 @@ import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import Checkbox from 'primevue/checkbox';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { inventoryApi } from '@/modules/inventory/api/inventory.api';
 import { useInventorySocket } from '@/modules/inventory/composables/useInventorySocket';
@@ -115,7 +114,6 @@ function openMeta(row: StockItem) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.inventory') }}</h1>

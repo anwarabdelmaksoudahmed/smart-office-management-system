@@ -7,7 +7,6 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Select from 'primevue/select';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { roomsApi, queueApi, type QueueEntry } from '@/modules/gaming/api/gaming.api';
 import { useGamingSocket } from '@/modules/gaming/composables/useGamingSocket';
@@ -80,7 +79,6 @@ function roomName(row: QueueEntry) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.queue') }}</h1>

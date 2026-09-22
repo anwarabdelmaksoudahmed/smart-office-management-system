@@ -7,7 +7,6 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { menuApi } from '@/modules/menu/api/menu.api';
 import { categoriesApi } from '@/modules/categories/api/categories.api';
@@ -89,7 +88,6 @@ async function addToCart(item: MenuItem) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.menu') }}</h1>

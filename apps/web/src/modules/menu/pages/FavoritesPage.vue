@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import Button from 'primevue/button';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { menuApi } from '@/modules/menu/api/menu.api';
 import { useCartStore } from '@/modules/orders/stores/cart.store';
@@ -50,7 +49,6 @@ async function addToCart(item: MenuItem) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <h1 class="soc-title">{{ t('nav.favorites') }}</h1>
     <p class="mt-1 text-sm soc-muted">{{ t('catalog.favoritesBlurb') }}</p>
 

@@ -2,7 +2,6 @@
 import { useI18n } from 'vue-i18n';
 import { useQuery, useQueryClient } from '@tanstack/vue-query';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { inventoryApi } from '@/modules/inventory/api/inventory.api';
 import { useInventorySocket } from '@/modules/inventory/composables/useInventorySocket';
@@ -43,7 +42,6 @@ function severity(kind: InventoryAlert['kind']) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <h1 class="soc-title">{{ t('inventory.alerts') }}</h1>
     <p class="mt-1 text-sm soc-muted">{{ t('inventory.alertsBlurb') }}</p>
 

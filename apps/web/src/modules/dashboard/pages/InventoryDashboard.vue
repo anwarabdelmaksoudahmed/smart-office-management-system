@@ -3,7 +3,6 @@ import { useI18n } from 'vue-i18n';
 import { useQuery, useQueryClient } from '@tanstack/vue-query';
 import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import PageHero from '@/shared/components/ui/PageHero.vue';
 import KpiCard from '@/shared/components/ui/KpiCard.vue';
@@ -35,7 +34,6 @@ useInventorySocket(() => {
 
 <template>
   <div class="soc-page soc-page-enter">
-    <Toast />
     <PageHero
       :eyebrow="t('app.name')"
       :title="t('portals.inventory')"

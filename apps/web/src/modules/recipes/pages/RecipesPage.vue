@@ -10,7 +10,6 @@ import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { recipesApi, ingredientsApi } from '@/modules/recipes/api/recipes.api';
 import { menuApi } from '@/modules/menu/api/menu.api';
@@ -130,7 +129,6 @@ watch(
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.recipes') }}</h1>

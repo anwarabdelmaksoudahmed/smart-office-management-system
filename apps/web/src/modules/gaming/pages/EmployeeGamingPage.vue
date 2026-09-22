@@ -6,7 +6,6 @@ import Button from 'primevue/button';
 import Select from 'primevue/select';
 import InputNumber from 'primevue/inputnumber';
 import Tag from 'primevue/tag';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import {
   roomsApi,
@@ -177,7 +176,6 @@ function formatWhen(iso: string) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div>
       <h1 class="soc-title">{{ t('nav.gaming') }}</h1>
       <p class="mt-1 text-sm soc-muted">{{ t('gaming.employeeBlurb') }}</p>

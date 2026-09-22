@@ -6,7 +6,6 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Select from 'primevue/select';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { authApi } from '@/modules/auth/api/auth.api';
 import { useAuthStore } from '@/modules/auth/stores/auth.store';
@@ -155,7 +154,6 @@ const passwordMutation = useMutation({
 
 <template>
   <div class="soc-page soc-page-enter">
-    <Toast />
     <PageHeader :title="t('profile.title')" :blurb="t('profile.blurb')" />
 
     <div class="mt-6 grid gap-6 lg:grid-cols-2">

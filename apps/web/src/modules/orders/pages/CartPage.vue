@@ -6,7 +6,6 @@ import { useMutation, useQuery } from '@tanstack/vue-query';
 import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
 import Checkbox from 'primevue/checkbox';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { useCartStore } from '@/modules/orders/stores/cart.store';
 import { ordersApi } from '@/modules/orders/api/orders.api';
@@ -95,7 +94,6 @@ function setLineQty(line: CartLine, quantity: number) {
 
 <template>
   <div class="soc-page soc-page-enter">
-    <Toast />
     <PageHeader :title="t('orders.cart')" :blurb="t('orders.cartBlurb')">
       <template v-if="cart.lines.length" #meta>
         <p class="mt-1 text-sm soc-muted">

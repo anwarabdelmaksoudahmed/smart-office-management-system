@@ -6,7 +6,6 @@ import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { ordersApi } from '@/modules/orders/api/orders.api';
 import { useOrdersSocket } from '@/modules/orders/composables/useOrdersSocket';
@@ -195,7 +194,6 @@ function cardStyle(order: Order) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.queue') }}</h1>

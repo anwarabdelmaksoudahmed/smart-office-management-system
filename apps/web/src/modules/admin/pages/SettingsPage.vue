@@ -5,7 +5,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import Button from 'primevue/button';
 import InputNumber from 'primevue/inputnumber';
 import Textarea from 'primevue/textarea';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { adminApi, type AppSetting } from '@/modules/admin/api/admin.api';
 
@@ -93,7 +92,6 @@ function isRewardNumeric(key: string) {
 
 <template>
   <div class="soc-page">
-    <Toast />
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="soc-title">{{ t('nav.settings') }}</h1>
