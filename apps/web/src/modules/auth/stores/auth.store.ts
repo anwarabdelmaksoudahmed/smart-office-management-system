@@ -1,20 +1,49 @@
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
-import { useStorage } from '@vueuse/core';
+import { computed, ref, watch, type Ref } from 'vue';
+import { StorageSerializers, useStorage } from '@vueuse/core';
 import { authApi } from '@/modules/auth/api/auth.api';
 import { setAccessToken, setRefreshHandler } from '@/shared/services/api';
 import type { AuthUser } from '@/shared/types/auth';
-import { defaultPortalPath, portalsForRoles } from '@/shared/constants/portals';
+import {
+  PORTAL_IDS,
+  PORTAL_PRIORITY,
+  defaultPortalId,
+  portalDashboardPath,
+  portalsForRoles,
+  type PortalId,
+} from '@/shared/constants/portals';
 
-const ACCESS_KEY = 'soc.accessToken';
-const REFRESH_KEY = 'soc.refreshToken';
+interface PortalSession {
+  accessToken: string;
+  refreshToken: string;
+}
+
+/** Each portal keeps its own tokens so logging out of one dashboard never affects another. */
+const SESSION_KEY_PREFIX = 'soc.session.';
+const LEGACY_KEYS = ['soc.accessToken', 'soc.refreshToken'];
 
 export const useAuthStore = defineStore('auth', () => {
+  for (const key of LEGACY_KEYS) localStorage.removeItem(key);
+
+  const sessions = Object.fromEntries(
+    PORTAL_IDS.map((id) => [
+      id,
+      useStorage<PortalSession | null>(`${SESSION_KEY_PREFIX}${id}`, null, localStorage, {
+        serializer: StorageSerializers.object,
+      }),
+    ]),
+  ) as Record<PortalId, Ref<PortalSession | null>>;
+
+  const activePortal = ref<PortalId | null>(null);
   const user = ref<AuthUser | null>(null);
-  const accessToken = useStorage<string | null>(ACCESS_KEY, null);
-  const refreshToken = useStorage<string | null>(REFRESH_KEY, null);
-  const bootstrapped = ref(false);
   const loading = ref(false);
+  let pendingActivation: Promise<void> | null = null;
+
+  const activeSession = computed(() =>
+    activePortal.value ? sessions[activePortal.value].value : null,
+  );
+  const accessToken = computed(() => activeSession.value?.accessToken ?? null);
+  const refreshToken = computed(() => activeSession.value?.refreshToken ?? null);
 
   const isAuthenticated = computed(() => Boolean(accessToken.value && user.value));
   const roles = computed(() => user.value?.roles ?? []);
@@ -24,42 +53,74 @@ export const useAuthStore = defineStore('auth', () => {
     user.value ? `${user.value.firstName} ${user.value.lastName}`.trim() : '',
   );
 
-  function syncToken(): void {
-    setAccessToken(accessToken.value);
+  watch(
+    accessToken,
+    (token) => {
+      setAccessToken(token);
+      if (!token) user.value = null;
+    },
+    { immediate: true, flush: 'sync' },
+  );
+
+  function hasSession(portal: PortalId): boolean {
+    return Boolean(sessions[portal].value?.accessToken);
+  }
+
+  function firstSessionPortal(): PortalId | null {
+    return PORTAL_PRIORITY.find(hasSession) ?? null;
   }
 
   async function refreshTokens(): Promise<string | null> {
-    if (!refreshToken.value) return null;
+    const portal = activePortal.value;
+    const current = refreshToken.value;
+    if (!portal || !current) return null;
     try {
-      const { data } = await authApi.refresh(refreshToken.value);
-      accessToken.value = data.accessToken;
-      refreshToken.value = data.refreshToken;
-      syncToken();
+      const { data } = await authApi.refresh(current);
+      sessions[portal].value = {
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      };
       return data.accessToken;
     } catch {
-      await clearSession();
+      // Another tab of the same portal may have already rotated this refresh token.
+      const latest = sessions[portal].value;
+      if (latest && latest.refreshToken !== current) return latest.accessToken;
+      clearSession(portal);
       return null;
     }
   }
 
   setRefreshHandler(refreshTokens);
 
-  async function login(email: string, password: string): Promise<string> {
+  async function login(
+    email: string,
+    password: string,
+    requestedPortal?: PortalId | null,
+  ): Promise<string> {
     loading.value = true;
     try {
       const { data } = await authApi.login(email, password);
-      accessToken.value = data.accessToken;
-      refreshToken.value = data.refreshToken;
+      const allowed = portalsForRoles(data.user.roles);
+      const portal =
+        allowed.find((p) => p.id === requestedPortal)?.id ?? defaultPortalId(data.user.roles);
+      if (!portal) throw new Error('NO_PORTAL_ACCESS');
+
+      activePortal.value = portal;
+      sessions[portal].value = {
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      };
       user.value = data.user;
-      syncToken();
-      return defaultPortalPath(data.user.roles);
+      return portalDashboardPath(portal);
     } finally {
       loading.value = false;
     }
   }
 
   async function fetchMe(): Promise<void> {
+    const portal = activePortal.value;
     const { data } = await authApi.me();
+    if (portal !== activePortal.value) return;
     user.value = {
       id: data.id,
       email: data.email,
@@ -74,12 +135,7 @@ export const useAuthStore = defineStore('auth', () => {
     };
   }
 
-  async function bootstrap(): Promise<void> {
-    syncToken();
-    if (!accessToken.value) {
-      bootstrapped.value = true;
-      return;
-    }
+  async function loadActiveUser(portal: PortalId): Promise<void> {
     try {
       await fetchMe();
     } catch {
@@ -88,15 +144,30 @@ export const useAuthStore = defineStore('auth', () => {
         try {
           await fetchMe();
         } catch {
-          await clearSession();
+          clearSession(portal);
         }
       }
-    } finally {
-      bootstrapped.value = true;
     }
   }
 
+  /** Switches this tab to the given portal's session and loads its user if needed. */
+  async function activate(portal: PortalId | null): Promise<void> {
+    if (portal !== activePortal.value) {
+      pendingActivation = null;
+      user.value = null;
+      activePortal.value = portal;
+    }
+    if (!portal || user.value || !accessToken.value) return;
+
+    pendingActivation ??= loadActiveUser(portal).finally(() => {
+      pendingActivation = null;
+    });
+    await pendingActivation;
+  }
+
   async function logout(): Promise<void> {
+    const portal = activePortal.value;
+    if (!portal) return;
     try {
       if (refreshToken.value) {
         await authApi.logout(refreshToken.value);
@@ -104,15 +175,14 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       /* ignore network errors on logout */
     } finally {
-      await clearSession();
+      clearSession(portal);
     }
   }
 
-  async function clearSession(): Promise<void> {
-    user.value = null;
-    accessToken.value = null;
-    refreshToken.value = null;
-    setAccessToken(null);
+  function clearSession(portal: PortalId | null = activePortal.value): void {
+    if (!portal) return;
+    sessions[portal].value = null;
+    if (portal === activePortal.value) user.value = null;
   }
 
   function hasPermission(code: string): boolean {
@@ -126,9 +196,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     user,
+    activePortal,
     accessToken,
     refreshToken,
-    bootstrapped,
     loading,
     isAuthenticated,
     roles,
@@ -137,8 +207,10 @@ export const useAuthStore = defineStore('auth', () => {
     displayName,
     login,
     logout,
-    bootstrap,
+    activate,
     fetchMe,
+    hasSession,
+    firstSessionPortal,
     hasPermission,
     hasAnyRole,
     clearSession,

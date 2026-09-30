@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import { useForm, useField } from 'vee-validate';
@@ -11,6 +11,7 @@ import Message from 'primevue/message';
 import LocaleSwitcher from '@/shared/components/ui/LocaleSwitcher.vue';
 import ThemeToggle from '@/shared/components/ui/ThemeToggle.vue';
 import { useAuthStore } from '@/modules/auth/stores/auth.store';
+import { isPortalId, portalFromPath } from '@/shared/constants/portals';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -37,12 +38,19 @@ const { handleSubmit, isSubmitting } = useForm({
 const { value: email, errorMessage: emailError } = useField<string>('email');
 const { value: password, errorMessage: passwordError } = useField<string>('password');
 
+const requestedPortal = computed(() =>
+  isPortalId(route.query.portal) ? route.query.portal : null,
+);
+
 const onSubmit = handleSubmit(async (values) => {
   errorMessage.value = '';
   try {
-    const target = await auth.login(values.email, values.password);
-    const redirect = (route.query.redirect as string) || target;
-    await router.replace(redirect);
+    const target = await auth.login(values.email, values.password, requestedPortal.value);
+    const redirect = route.query.redirect;
+    const samePortal =
+      typeof redirect === 'string' &&
+      portalFromPath(redirect) === portalFromPath(target);
+    await router.replace(samePortal ? redirect : target);
   } catch {
     errorMessage.value = t('auth.invalid');
   }
@@ -96,6 +104,13 @@ const onSubmit = handleSubmit(async (values) => {
           <div>
             <h2 class="font-display text-2xl font-semibold">{{ t('auth.welcome') }}</h2>
             <p class="mt-1 text-sm soc-muted">{{ t('auth.subtitle') }}</p>
+            <p
+              v-if="requestedPortal"
+              class="mt-3 inline-flex items-center gap-2 rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-800 dark:bg-brand-900/40 dark:text-brand-200"
+            >
+              <i class="pi pi-sign-in" />
+              {{ t('auth.signingInto', { portal: t(`portals.${requestedPortal}`) }) }}
+            </p>
           </div>
 
           <Message v-if="errorMessage" severity="error" :closable="false">

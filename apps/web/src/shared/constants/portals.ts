@@ -49,24 +49,35 @@ export const PORTALS: PortalDefinition[] = [
   },
 ];
 
+export const PORTAL_IDS: PortalId[] = PORTALS.map((p) => p.id);
+
+/** Prefer operational portals over employee when a user has a specialized role. */
+export const PORTAL_PRIORITY: PortalId[] = [
+  'admin',
+  'barista',
+  'inventory',
+  'gaming',
+  'employee',
+];
+
+export function isPortalId(value: unknown): value is PortalId {
+  return typeof value === 'string' && (PORTAL_IDS as string[]).includes(value);
+}
+
+export function portalFromPath(path: string): PortalId | null {
+  const segment = path.split('/').filter(Boolean)[0];
+  return isPortalId(segment) ? segment : null;
+}
+
+export function portalDashboardPath(id: PortalId): string {
+  return `/${id}/dashboard`;
+}
+
 export function portalsForRoles(roles: string[]): PortalDefinition[] {
   return PORTALS.filter((p) => p.roles.some((r) => roles.includes(r)));
 }
 
-export function defaultPortalPath(roles: string[]): string {
+export function defaultPortalId(roles: string[]): PortalId | null {
   const available = portalsForRoles(roles);
-  if (!available.length) return '/login';
-  // Prefer operational portal over employee if specialized role
-  const preferredOrder: PortalId[] = [
-    'admin',
-    'barista',
-    'inventory',
-    'gaming',
-    'employee',
-  ];
-  for (const id of preferredOrder) {
-    const match = available.find((p) => p.id === id);
-    if (match) return `${match.path}/dashboard`;
-  }
-  return `${available[0].path}/dashboard`;
+  return PORTAL_PRIORITY.find((id) => available.some((p) => p.id === id)) ?? null;
 }

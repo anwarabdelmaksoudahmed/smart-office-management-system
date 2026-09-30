@@ -49,7 +49,8 @@
     "invalid": "البريد أو كلمة المرور غير صحيحة",
     "requiredEmail": "البريد مطلوب",
     "requiredPassword": "كلمة المرور مطلوبة",
-    "emailInvalid": "أدخل بريداً صالحاً"
+    "emailInvalid": "أدخل بريداً صالحاً",
+    "signingInto": "تسجيل الدخول إلى لوحة {portal}"
   },
   "profile": {
     "title": "ملفي الشخصي",

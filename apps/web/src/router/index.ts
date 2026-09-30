@@ -5,7 +5,11 @@ import {
 } from 'vue-router';
 import { SystemRole } from '@smart-office/shared';
 import { useAuthStore } from '@/modules/auth/stores/auth.store';
-import { defaultPortalPath } from '@/shared/constants/portals';
+import {
+  isPortalId,
+  portalDashboardPath,
+  portalFromPath,
+} from '@/shared/constants/portals';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -26,9 +30,8 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'root',
     redirect: () => {
-      const auth = useAuthStore();
-      if (!auth.isAuthenticated) return { name: 'login' };
-      return defaultPortalPath(auth.roles);
+      const portal = useAuthStore().firstSessionPortal();
+      return portal ? portalDashboardPath(portal) : { name: 'login' };
     },
   },
   {
@@ -334,21 +337,24 @@ export const router = createRouter({
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
 
-  if (!auth.bootstrapped) {
-    await auth.bootstrap();
-  }
-
   if (to.meta.public) {
-    if (auth.isAuthenticated && to.name === 'login') {
-      return defaultPortalPath(auth.roles);
+    const requested = to.name === 'login' ? to.query.portal : null;
+    if (isPortalId(requested) && auth.hasSession(requested)) {
+      await auth.activate(requested);
+      if (auth.isAuthenticated) return portalDashboardPath(requested);
     }
     return true;
   }
 
+  const portal = portalFromPath(to.path);
+  if (!portal) return true;
+
+  await auth.activate(portal);
+
   if (!auth.isAuthenticated) {
     return {
       name: 'login',
-      query: { redirect: to.fullPath },
+      query: { portal, redirect: to.fullPath },
     };
   }
 
@@ -357,7 +363,8 @@ router.beforeEach(async (to) => {
     .find((roles) => roles && roles.length);
 
   if (requiredRoles && !auth.hasAnyRole(requiredRoles)) {
-    return defaultPortalPath(auth.roles);
+    auth.clearSession(portal);
+    return { name: 'login', query: { portal } };
   }
 
   return true;

@@ -49,7 +49,8 @@
     "invalid": "Invalid email or password",
     "requiredEmail": "Email is required",
     "requiredPassword": "Password is required",
-    "emailInvalid": "Enter a valid email"
+    "emailInvalid": "Enter a valid email",
+    "signingInto": "Signing in to the {portal} dashboard"
   },
   "profile": {
     "title": "My profile",

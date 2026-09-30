@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import Button from 'primevue/button';
@@ -10,6 +10,7 @@ import Toast from 'primevue/toast';
 import { useAuthStore } from '@/modules/auth/stores/auth.store';
 import { useCartStore } from '@/modules/orders/stores/cart.store';
 import type { NavItem } from '@/shared/types/auth';
+import { portalFromPath } from '@/shared/constants/portals';
 
 defineProps<{
   portalTitleKey: string;
@@ -29,21 +30,28 @@ const initials = computed(() => {
   return `${u.firstName?.[0] ?? ''}${u.lastName?.[0] ?? ''}`.toUpperCase();
 });
 
-const profilePath = computed(() => {
-  const segment = route.path.split('/').filter(Boolean)[0];
-  const portals = new Set(['employee', 'barista', 'inventory', 'gaming', 'admin']);
-  if (segment && portals.has(segment)) return `/${segment}/profile`;
-  return '/employee/profile';
-});
+const portal = portalFromPath(route.path);
+
+const profilePath = computed(() => `/${portal ?? 'employee'}/profile`);
 
 function isActive(to: string): boolean {
   return route.path === to || route.path.startsWith(`${to}/`);
 }
 
+function goToLogin() {
+  void router.replace({ name: 'login', query: portal ? { portal } : {} });
+}
+
+watch(
+  () => (portal ? auth.hasSession(portal) : true),
+  (hasSession) => {
+    if (!hasSession) goToLogin();
+  },
+);
+
 async function onLogout() {
-  cart.clear();
+  if (portal === 'employee') cart.clear();
   await auth.logout();
-  await router.push({ name: 'login' });
 }
 </script>
 
