@@ -18,7 +18,7 @@ const navItems = computed<NavItem[]>(() => [
   { labelKey: 'nav.orders', to: '/employee/orders', icon: 'pi pi-shopping-bag' },
   { labelKey: 'nav.favorites', to: '/employee/favorites', icon: 'pi pi-heart' },
   { labelKey: 'nav.gaming', to: '/employee/gaming', icon: 'pi pi-desktop' },
-  { labelKey: 'nav.rewards', to: '/employee/rewards', icon: 'pi pi-gift' },
+  // { labelKey: 'nav.rewards', to: '/employee/rewards', icon: 'pi pi-gift' },
   { labelKey: 'nav.profile', to: '/employee/profile', icon: 'pi pi-user' },
 ]);
 </script>

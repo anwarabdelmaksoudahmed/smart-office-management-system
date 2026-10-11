@@ -33,7 +33,7 @@ const freeDrinks = computed(() => me.value?.balance.freeDrinks ?? '—');
       :blurb="t('dashboard.employeeBlurb')"
     />
 
-    <div class="soc-stagger mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="soc-stagger mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <KpiCard :label="t('rewards.points')" :value="points" tone="brand" />
       <KpiCard :label="t('rewards.freeDrinks')" :value="freeDrinks" tone="success" />
       <KpiCard :label="t('rewards.quickOrder')" value="">
@@ -46,7 +46,7 @@ const freeDrinks = computed(() => me.value?.balance.freeDrinks ?? '—');
           />
         </template>
       </KpiCard>
-      <KpiCard :label="t('rewards.quickRedeem')" value="">
+      <!-- <KpiCard :label="t('rewards.quickRedeem')" value="">
         <template #footer>
           <Button
             :label="t('nav.rewards')"
@@ -56,7 +56,7 @@ const freeDrinks = computed(() => me.value?.balance.freeDrinks ?? '—');
             @click="router.push('/employee/rewards')"
           />
         </template>
-      </KpiCard>
+      </KpiCard> -->
     </div>
   </div>
 </template>

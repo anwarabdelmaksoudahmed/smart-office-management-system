@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Smart Office Café",
+    "name": "Masarat Tech",
     "tagline": "Café, inventory & gaming — one workspace"
   },
   "nav": {
@@ -73,7 +73,19 @@
     "changePassword": "Update password",
     "passwordChanged": "Password updated — other sessions were signed out",
     "passwordMismatch": "New passwords do not match",
-    "passwordFailed": "Could not change password"
+    "passwordFailed": "Could not change password",
+    "personalHint": "This information is visible to your teammates.",
+    "photoHint": "JPG, PNG, or WebP — up to 450KB. Click Save to apply a new photo.",
+    "nameRequired": "First and last name are required",
+    "emailLocked": "Contact an administrator to change your email.",
+    "unsavedChanges": "You have unsaved changes",
+    "upToDate": "All changes saved",
+    "discard": "Discard",
+    "passwordMinLength": "At least {count} characters",
+    "strengthWeak": "Weak password",
+    "strengthFair": "Fair password",
+    "strengthGood": "Good password",
+    "strengthStrong": "Strong password"
   },
   "common": {
     "loading": "Loading…",

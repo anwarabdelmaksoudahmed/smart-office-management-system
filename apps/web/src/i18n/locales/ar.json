@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "مقهى المكتب الذكي",
+    "name": "Masarat Tech",
     "tagline": "المقهى والمخزون والألعاب — منصة واحدة"
   },
   "nav": {
@@ -73,7 +73,19 @@
     "changePassword": "تحديث كلمة المرور",
     "passwordChanged": "تم تحديث كلمة المرور — تم إنهاء الجلسات الأخرى",
     "passwordMismatch": "كلمتا المرور الجديدتان غير متطابقتين",
-    "passwordFailed": "تعذر تغيير كلمة المرور"
+    "passwordFailed": "تعذر تغيير كلمة المرور",
+    "personalHint": "هذه المعلومات مرئية لزملائك في العمل.",
+    "photoHint": "JPG أو PNG أو WebP — حتى 450 كيلوبايت. اضغط حفظ لتطبيق الصورة الجديدة.",
+    "nameRequired": "الاسم الأول واسم العائلة مطلوبان",
+    "emailLocked": "تواصل مع المسؤول لتغيير بريدك الإلكتروني.",
+    "unsavedChanges": "لديك تغييرات غير محفوظة",
+    "upToDate": "تم حفظ جميع التغييرات",
+    "discard": "تجاهل",
+    "passwordMinLength": "{count} أحرف على الأقل",
+    "strengthWeak": "كلمة مرور ضعيفة",
+    "strengthFair": "كلمة مرور مقبولة",
+    "strengthGood": "كلمة مرور جيدة",
+    "strengthStrong": "كلمة مرور قوية"
   },
   "common": {
     "loading": "جارٍ التحميل…",

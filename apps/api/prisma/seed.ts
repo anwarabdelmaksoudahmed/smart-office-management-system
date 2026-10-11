@@ -214,7 +214,7 @@ async function seedSettings() {
     {
       key: 'cafe.name',
       group: 'general',
-      value: { en: 'Smart Office Café', ar: 'مقهى المكتب الذكي' },
+      value: { en: 'Masarat Tech', ar: 'Masarat Tech' },
     },
     {
       key: 'locale.default',
